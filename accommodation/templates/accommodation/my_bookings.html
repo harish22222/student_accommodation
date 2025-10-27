@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}My Bookings{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg border-0">
+    <div class="card-body p-4">
+      <h2 class="fw-bold text-primary mb-4">📘 My Bookings</h2>
+
+      {% if bookings %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-primary">
+              <tr>
+                <th>Accommodation</th>
+                <th>Room</th>
+                <th>Original Price (€)</th>
+                <th>Discount (%)</th>
+                <th>Final Price (€)</th>
+                <th>Booking Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for booking in bookings %}
+              <tr>
+                <td>{{ booking.room.accommodation.title }}</td>
+                <td>Room {{ booking.room.room_number }}</td>
+
+                {% if booking.room.accommodation.festival_discount and booking.room.accommodation.festival_discount.is_active %}
+                  {% with discount=booking.room.accommodation.festival_discount %}
+                    <td>{{ booking.room.accommodation.price_per_month }}</td>
+                    <td>{{ discount.percentage }}%</td>
+                    <td>
+                      {{ booking.room.accommodation.get_final_price|floatformat:2 }}
+                    </td>
+                  {% endwith %}
+                {% else %}
+                  <td>{{ booking.room.accommodation.price_per_month }}</td>
+                  <td>0%</td>
+                  <td>{{ booking.room.accommodation.price_per_month }}</td>
+                {% endif %}
+
+                <td>{{ booking.date_booked|date:"Y-m-d H:i" }}</td>
+
+                <td>
+                  <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="booking_id" value="{{ booking.id }}">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                      Cancel
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-muted text-center mt-3">You have no bookings yet.</p>
+      {% endif %}
+
+      <div class="text-center mt-4">
+        <a href="{% url 'accommodation:accommodation_list' %}" class="btn btn-outline-secondary fw-semibold">
+          ← Back to Listings
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✨ Optional Styling -->
+<style>
+.card {
+  border-radius: 12px;
+}
+.table th, .table td {
+  vertical-align: middle;
+}
+.btn {
+  transition: all 0.3s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+</style>
+{% endblock %}

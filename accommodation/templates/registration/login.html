@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    background: linear-gradient(135deg, #8e44ff, #6c5ce7);
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .login-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    padding: 40px;
+    max-width: 400px;
+    width: 100%;
+    margin: auto;
+    text-align: center;
+  }
+
+  .login-card h3 {
+    color: #6c5ce7;
+    font-weight: 700;
+    margin-bottom: 25px;
+  }
+
+  .btn-login {
+    background: linear-gradient(135deg, #8e44ff, #6c5ce7);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 600;
+    width: 100%;
+    padding: 10px 0;
+    margin-top: 10px;
+  }
+
+  .btn-login:hover {
+    background: linear-gradient(135deg, #7a35ff, #5a3de0);
+  }
+
+  .login-link {
+    margin-top: 15px;
+    font-size: 0.95rem;
+    color: #555;
+  }
+
+  .login-link a {
+    color: #8e44ff;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .login-link a:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<div class="login-card">
+  <h3>Welcome Back 👋</h3>
+  <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="mb-3">
+      {{ form.username.label_tag }}
+      {{ form.username }}
+    </div>
+    <div class="mb-3">
+      {{ form.password.label_tag }}
+      {{ form.password }}
+    </div>
+    <button type="submit" class="btn-login">Login</button>
+  </form>
+  <div class="login-link">
+    Don’t have an account? <a href="{% url 'accommodation:register' %}">Create one</a>
+  </div>
+</div>
+{% endblock %}

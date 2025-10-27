@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <!-- ✅ Prevent Browser Caching -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Student Accommodation{% endblock %}</title>
+
+  <!-- ✅ Bootstrap CSS -->
+  <link 
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
+    rel="stylesheet"
+  />
+
+  <!-- ✅ Custom CSS -->
+  <link rel="stylesheet" href="{% static 'accommodation/css/style.css' %}" />
+
+  <!-- ✅ Google Font -->
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" 
+    rel="stylesheet"
+  />
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f7f9fc;
+      margin: 0;
+    }
+
+    .navbar {
+      background-color: #2962ff !important;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar-brand {
+      color: #fff !important;
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+
+    .nav-link {
+      color: #fff !important;
+      font-weight: 500;
+      margin-left: 10px;
+    }
+
+    .nav-link:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 40px 20px;
+      min-height: 70vh;
+    }
+
+    footer {
+      background-color: #2962ff;
+      color: white;
+      text-align: center;
+      padding: 10px 0;
+      margin-top: 50px;
+      font-size: 0.9rem;
+    }
+
+    .username {
+      font-weight: 600;
+      color: #ffeb3b;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ✅ Responsive Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark px-4">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="{% url 'accommodation:accommodation_list' %}">
+        🏠 Student Accommodation
+      </a>
+
+      <!-- Toggle button for mobile -->
+      <button 
+        class="navbar-toggler" 
+        type="button" 
+        data-bs-toggle="collapse" 
+        data-bs-target="#navbarNav"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navbar links -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="ms-auto d-flex align-items-center">
+          {% if user.is_authenticated %}
+            <span class="text-warning fw-bold me-3">👋 Hi, {{ user.username }}</span>
+            <a href="{% url 'accommodation:my_bookings' %}" class="text-white me-3 nav-link">My Bookings</a>
+            <a href="{% url 'logout' %}" class="text-white fw-bold nav-link">Logout</a>
+          {% else %}
+            <a href="{% url 'login' %}" class="text-white fw-bold me-3 nav-link">Login</a>
+            <a href="{% url 'register' %}" class="text-white fw-bold nav-link">Register</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ✅ Main Content -->
+  <main class="container">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- ✅ Footer -->
+  <footer>
+    © {{ now|date:"Y" }} Student Accommodation | All rights reserved.
+  </footer>
+
+  <!-- ✅ Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Book a Room{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-4">
+
+          <h2 class="text-center mb-4" style="color: #4B0082;">🛏️ Book a Room</h2>
+
+          {% if user.is_authenticated %}
+            {% if discounts %}
+              <div class="alert alert-success text-center">
+                {% for discount in discounts %}
+                  <p class="mb-1">
+                    🎉 <strong>{{ discount.name }}</strong> — {{ discount.discount_percent }}% OFF  
+                    <small>(Valid from {{ discount.start_date }} to {{ discount.end_date }})</small>
+                  </p>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="alert alert-info text-center">
+                No active discounts available right now.
+              </div>
+            {% endif %}
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary w-100 mt-3">Confirm Booking</button>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+

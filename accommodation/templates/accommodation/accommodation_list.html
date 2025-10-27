@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Accommodation Listings{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    background: linear-gradient(135deg, #f5f3ff 0%, #e9e4ff 100%);
+  }
+
+  h2 {
+    color: #4e54c8;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .filter-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 30px auto 60px auto;
+    padding: 30px;
+  }
+
+  .filter-card .form-control {
+    border-radius: 10px;
+  }
+
+  .filter-card .form-control:focus {
+    border-color: #4e54c8;
+    box-shadow: 0 0 6px rgba(78, 84, 200, 0.3);
+  }
+
+  .btn-primary {
+    background-color: #4e54c8;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #3f44b3;
+  }
+
+  .accommodation-card {
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    background: white;
+    overflow: hidden;
+  }
+
+  .accommodation-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  .card-title a {
+    color: #4e54c8;
+    text-decoration: none;
+  }
+
+  .card-title a:hover {
+    color: #ffb84d;
+  }
+
+  .price {
+    color: #2d3436;
+    font-weight: 600;
+  }
+
+  .no-results {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    margin-top: 50px;
+  }
+
+  .discount-banner {
+    max-width: 700px;
+    margin: auto;
+    background: #e6ffed;
+    border: 1px solid #b5e0b5;
+    color: #166534;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .discount-ribbon {
+    position: absolute;
+    top: 10px;
+    left: -5px;
+    background: #4CAF50;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 4px 12px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  .card-img-container {
+    position: relative;
+  }
+</style>
+
+<div class="container mt-5">
+  <h2 class="mb-4">🏡 Accommodation Listings</h2>
+
+  <div class="filter-card">
+    <form method="get">
+      <input type="text" name="q" placeholder="Search by title or description" class="form-control mb-2" value="{{ request.GET.q }}">
+      <input type="text" name="city" placeholder="City" class="form-control mb-2" value="{{ request.GET.city }}">
+      <input type="number" name="max_price" placeholder="Max Price (€)" class="form-control mb-3" value="{{ request.GET.max_price }}">
+      <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </form>
+  </div>
+
+  {% if active_discounts %}
+    <div class="discount-banner shadow-sm mb-4">
+      {% for discount in active_discounts %}
+        🎉 <strong>{{ discount.name }}</strong> — {{ discount.percentage }}% OFF!
+        <small>(Valid: {{ discount.start_date }} → {{ discount.end_date }})</small><br>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="row justify-content-center">
+    {% if accommodations %}
+      {% for accommodation in accommodations %}
+        <div class="col-md-4 col-sm-6 mb-4">
+          <div class="card accommodation-card h-100 shadow-sm border-0">
+
+            <div class="card-img-container">
+              {% if accommodation.image %}
+                <img src="{{ accommodation.image.url }}" alt="{{ accommodation.title }}" class="img-fluid rounded-top" style="height: 200px; object-fit: cover;">
+              {% else %}
+                <img src="{% static 'images/no-image.png' %}" alt="No image" class="img-fluid rounded-top" style="height: 200px; object-fit: cover;">
+              {% endif %}
+
+              {% if accommodation.festival_discount and accommodation.festival_discount.is_active %}
+                <div class="discount-ribbon">
+                  {{ accommodation.festival_discount.percentage }}% OFF
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="card-body">
+              <h5 class="card-title fw-bold mb-2">
+                <a href="{% url 'accommodation:accommodation_detail' accommodation.pk %}">
+                  {{ accommodation.title }}
+                </a>
+              </h5>
+              <p class="card-text text-muted mb-1">📍 {{ accommodation.city }}</p>
+
+              {% if accommodation.festival_discount and accommodation.festival_discount.is_active %}
+                {% with discount=accommodation.festival_discount %}
+                  <p class="mb-0 text-success fw-semibold">
+                    💰 <del style="color:#999;">€{{ accommodation.price_per_month }}</del><br>
+                    <span>€{{ accommodation.get_final_price|floatformat:2 }}</span><br>
+                    <small>{{ discount.name }} - {{ discount.percentage }}% OFF 🎉</small>
+                  </p>
+                {% endwith %}
+              {% else %}
+                <p>💶 €{{ accommodation.price_per_month }}</p>
+              {% endif %}
+
+              <a href="{% url 'accommodation:accommodation_detail' accommodation.pk %}" class="btn btn-outline-primary w-100 fw-semibold mt-3">
+                View Details
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="no-results">No accommodations found. Try adjusting your filters.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
