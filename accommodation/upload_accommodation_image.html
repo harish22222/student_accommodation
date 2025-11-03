@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Update Image{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg border-0">
+    <div class="card-body p-4">
+      <h2 class="fw-bold text-primary mb-4 text-center">🖼️ Update Image for {{ accommodation.title }}</h2>
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary w-100 fw-semibold mt-3">Upload</button>
+      </form>
+
+      <div class="text-center mt-4">
+        <a href="{% url 'accommodation:accommodation_detail' accommodation.id %}" class="btn btn-outline-secondary fw-semibold">
+          ← Back to Details
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

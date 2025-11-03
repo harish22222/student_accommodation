@@ -6,12 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Accommodation - Register</title>
 
-  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* 🌈 Page Styling */
     body {
       background: linear-gradient(135deg, #5a49f8, #7b5bff);
       font-family: 'Poppins', sans-serif;
@@ -22,7 +20,6 @@
       color: #333;
     }
 
-    /* 🧭 Header */
     .navbar-custom {
       background: linear-gradient(135deg, #5a49f8, #7b5bff);
       color: white;
@@ -45,7 +42,6 @@
       color: #ffe6ff;
     }
 
-    /* 💜 Register Card */
     .register-card {
       background: white;
       border-radius: 20px;
@@ -74,7 +70,6 @@
       box-shadow: 0 0 5px rgba(123, 91, 255, 0.3);
     }
 
-    /* 🎨 Button */
     .btn-register {
       background: linear-gradient(135deg, #7b5bff, #5a49f8);
       border: none;
@@ -92,7 +87,6 @@
       box-shadow: 0 4px 12px rgba(123, 91, 255, 0.3);
     }
 
-    /* ⚓ Footer */
     footer {
       background: linear-gradient(135deg, #5a49f8, #7b5bff);
       color: rgba(255, 255, 255, 0.9);
@@ -102,7 +96,6 @@
       margin-top: auto;
     }
 
-    /* 🧾 Simplify Django form */
     form p {
       margin-bottom: 1rem;
       text-align: left;
@@ -128,26 +121,11 @@
       box-shadow: 0 0 4px rgba(123, 91, 255, 0.3);
     }
 
-    /* 🧹 Hide all help texts */
-    .helptext, form ul {
-      display: none;
-    }
-
-    /* 📱 Responsive */
-    @media (max-width: 576px) {
-      .navbar-custom {
-        flex-direction: column;
-        text-align: center;
-      }
-      .register-card {
-        padding: 1.8rem;
-      }
-    }
+    .helptext, form ul { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- 🏠 Header -->
   <nav class="navbar-custom">
     <div class="fw-bold fs-5">🏠 Student Accommodation</div>
     <div>
@@ -156,43 +134,27 @@
     </div>
   </nav>
 
-  <!-- 💜 Main Content -->
   <main class="d-flex justify-content-center align-items-center flex-fill">
     <div class="register-card">
       <h2>Create an Account ✨</h2>
-      <!--<form method="post">-->
-      <!--  {% csrf_token %}-->
-      <!--  <p>-->
-      <!--    <label for="id_username">Username</label>-->
-      <!--    {{ form.username }}-->
-      <!--  </p>-->
-      <!--  <p>-->
-      <!--    <label for="id_password1">Password</label>-->
-      <!--    {{ form.password1 }}-->
-      <!--  </p>-->
-      <!--  <p>-->
-      <!--    <label for="id_password2">Confirm Password</label>-->
-      <!--    {{ form.password2 }}-->
-      <!--  </p>-->
-      <!--  <button type="submit" class="btn-register">Register</button>-->
-      <!--</form>-->
-      
+
       <form method="post">
-  {% csrf_token %}
-  <p>
-    <label for="id_email">Email</label>
-    <input type="email" name="email" id="id_email" required>
-  </p>
-  <p>
-    <label for="id_password1">Password</label>
-    <input type="password" name="password1" id="id_password1" required>
-  </p>
-  <p>
-    <label for="id_password2">Confirm Password</label>
-    <input type="password" name="password2" id="id_password2" required>
-  </p>
-  <button type="submit" class="btn-register">Register</button>
-</form>
+        {% csrf_token %}
+        <p>
+          <label for="id_email">Email</label>
+          <input type="email" name="email" id="id_email" required>
+        </p>
+        <p>
+          <label for="id_password1">Password</label>
+          <input type="password" name="password1" id="id_password1" required>
+        </p>
+        <p>
+          <label for="id_password2">Confirm Password</label>
+          <input type="password" name="password2" id="id_password2" required>
+        </p>
+
+        <button type="submit" class="btn-register">Register</button>
+      </form>
 
       <p class="mt-3">
         Already have an account?
@@ -201,10 +163,6 @@
     </div>
   </main>
 
-  <!-- ⚓ Footer -->
-  <footer>
-    © Student Accommodation | All rights reserved
-  </footer>
-
+  <footer>© Student Accommodation | All rights reserved</footer>
 </body>
 </html>

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Booking Confirmation{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="card shadow-lg border-0">
+    <div class="card-body p-4 text-center">
+      <h2 class="fw-bold text-success mb-3">🎉 Booking Confirmed!</h2>
+      <p class="text-muted">Thank you for booking with <strong>Student Accommodation</strong>.</p>
+
+      <hr>
+
+      <h4 class="text-primary mb-3">{{ accommodation.title }}</h4>
+      <p><strong>Room:</strong> {{ room.room_number }}</p>
+      <p><strong>Final Price:</strong> €{{ booking.final_price|floatformat:2 }}</p>
+
+      <div class="alert alert-info mt-4">
+        💳 <strong>Payment Info:</strong> Please pay the total amount when you arrive for your stay.
+      </div>
+
+      <div class="mt-4">
+        <a href="{% url 'accommodation:my_bookings' %}" class="btn btn-primary fw-semibold">Go to My Bookings</a>
+        <a href="{% url 'accommodation:accommodation_list' %}" class="btn btn-outline-secondary fw-semibold">Back to Listings</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

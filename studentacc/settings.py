@@ -38,13 +38,11 @@ SECRET_KEY = secrets.get(
 )
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '2720983eaec6496894e37ad05aeb5ae5.vfs.cloud9.us-east-1.amazonaws.com'
-]
+ALLOWED_HOSTS = ['.vfs.cloud9.us-east-1.amazonaws.com']
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://2720983eaec6496894e37ad05aeb5ae5.vfs.cloud9.us-east-1.amazonaws.com'
-]
+
+CSRF_TRUSTED_ORIGINS = ['https://*.vfs.cloud9.us-east-1.amazonaws.com']
+
 
 # ========================
 # APPLICATIONS

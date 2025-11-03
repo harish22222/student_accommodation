@@ -68,7 +68,14 @@
         </table>
       </div>
 
-      <div class="d-flex justify-content-between mt-4">
+      <div class="d-flex justify-content-between mt-4 flex-wrap gap-2">
+        <!-- ✅ Update Image button visible only for staff -->
+        {% if user.is_staff %}
+          <a href="{% url 'accommodation:upload_image' accommodation.id %}" class="btn btn-outline-primary fw-semibold">
+            ✏️ Update Image
+          </a>
+        {% endif %}
+
         <a href="{% url 'accommodation:accommodation_list' %}" class="btn btn-outline-secondary fw-semibold">
           ← Back to Listings
         </a>

@@ -12,3 +12,9 @@ class AccommodationSearchForm(forms.Form):
     city = forms.CharField(required=False)
     max_price = forms.DecimalField(required=False, decimal_places=2, max_digits=8)
 
+from .models import Accommodation
+
+class AccommodationImageForm(forms.ModelForm):
+    class Meta:
+        model = Accommodation
+        fields = ['image']

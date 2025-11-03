@@ -6,11 +6,13 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
 from decimal import Decimal
 from .models import Accommodation, Booking, Student, Room
 from .sqs_utils import send_booking_message
-import smtplib
+from .sns_utils import send_sns_notification
+from .forms import AccommodationImageForm
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import requests
@@ -30,7 +32,7 @@ def check_room_api(request):
         return JsonResponse({"error": "Failed to connect"}, status=500)
 
 
-# 🏘️ Room list view (requires login)
+# 🏘️ Room list view
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @never_cache
 @login_required(login_url='login')
@@ -96,7 +98,7 @@ def accommodation_detail(request, pk):
     })
 
 
-# ✅ Instant Booking View
+# ✅ Booking View → Confirmation Page Flow
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @never_cache
 @login_required(login_url='login')
@@ -110,6 +112,7 @@ def book_room(request, pk):
 
     student, _ = Student.objects.get_or_create(user=request.user)
 
+    # ✅ Create booking entry
     booking = Booking.objects.create(
         student=student,
         room=available_room,
@@ -118,6 +121,7 @@ def book_room(request, pk):
         final_price=accommodation.get_final_price(),
     )
 
+    # Update room status
     available_room.status = "Booked"
     available_room.save()
 
@@ -128,57 +132,113 @@ def book_room(request, pk):
     except Exception as e:
         print("❌ SQS send failed:", e)
 
-    # ✅ Send email confirmation
-    sender_email = "kharish820414@gmail.com"
-    receiver_email = request.user.email
-    password = "krpyvsrdkkodwpju"
-
-    subject = "🎉 Booking Confirmation"
-    body = f"""
-    <html>
-      <body style="font-family: 'Poppins', Arial, sans-serif; background-color: #f4f6f8; padding: 40px;">
-        <div style="max-width:600px; margin:auto; background:white; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); overflow:hidden;">
-          <div style="background-color:#198754; color:white; text-align:center; padding:20px;">
-            <h2 style="margin:0;">Booking Confirmed!</h2>
-          </div>
-          <div style="padding:25px 30px;">
-            <p style="font-size:16px;">Hi <strong>{request.user.username}</strong>,</p>
-            <p style="font-size:16px;">
-              Your booking for <strong style="color:#0d6efd;">{accommodation.title}</strong> is confirmed.
-            </p>
-            <hr style="margin:20px 0; border:none; border-top:1px solid #ddd;">
-            <p style="font-size:15px;"><strong>Room:</strong> {available_room.room_number}</p>
-            <p style="font-size:15px;"><strong>Original Price:</strong> €{booking.original_price:.2f}</p>
-            <p style="font-size:15px;"><strong>Discount Applied:</strong> €{booking.discount_applied:.2f}</p>
-            <p style="font-size:15px;"><strong>Final Price:</strong> €{booking.final_price:.2f}</p>
-            <hr style="margin:20px 0; border:none; border-top:1px solid #ddd;">
-            <p style="text-align:center; font-size:14px; color:#666;">
-              Thank you for booking with <strong>Student Accommodation</strong>!<br>
-              We look forward to welcoming you.
-            </p>
-          </div>
-        </div>
-      </body>
-    </html>
-    """
-
-    message = MIMEMultipart()
-    message["From"] = sender_email
-    message["To"] = receiver_email
-    message["Subject"] = subject
-    message.attach(MIMEText(body, "html"))
-
+    # ✅ Send SNS Notification (Admin)
     try:
+        subject = "New Room Booking Notification"
+        message = f"""
+        New booking by {request.user.username} ({request.user.email})
+        Accommodation: {accommodation.title}
+        Room: {available_room.room_number}
+        Final Price: €{booking.final_price:.2f}
+        """
+        send_sns_notification(subject, message)
+        print("✅ SNS notification sent to admin successfully!")
+    except Exception as e:
+        print("❌ SNS Notification Failed:", e)
+
+    # ✅ Send booking confirmation email to user
+    try:
+        sender_email = "kharish820414@gmail.com"
+        receiver_email = request.user.email
+        password = "krpyvsrdkkodwpju"
+
+        subject = "🎉 Booking Confirmed - Student Accommodation"
+        body = f"""
+        <html>
+          <body style="font-family: 'Poppins', Arial, sans-serif; background-color: #f4f6f8; padding: 40px; margin: 0;">
+            <div style="max-width:600px; margin:auto; background:white; border-radius:12px; 
+                        box-shadow:0 4px 15px rgba(0,0,0,0.1); overflow:hidden;">
+              
+              <!-- Header -->
+              <div style="background-color:#198754; color:white; text-align:center; padding:20px 0;">
+                <h2 style="margin:0; font-size:24px;">Booking Confirmed!</h2>
+              </div>
+
+              <!-- Body -->
+              <div style="padding:30px;">
+                <p style="font-size:16px; color:#333;">Hi <strong style="color:#0056b3;">{request.user.email}</strong>,</p>
+
+                <p style="font-size:15px; color:#333; line-height:1.6;">
+                  Your booking for <strong style="color:#0056b3;">{accommodation.title}</strong> has been successfully confirmed! 🎉
+                </p>
+
+                <hr style="border:none; border-top:1px solid #ddd; margin:20px 0;">
+
+                <!-- Booking Details -->
+                <table style="width:100%; font-size:15px; color:#333;">
+                  <tr>
+                    <td style="padding:8px 0;"><strong>🏠 Room:</strong></td>
+                    <td style="padding:8px 0;">{available_room.room_number}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;"><strong>💰 Original Price:</strong></td>
+                    <td style="padding:8px 0;">€{booking.original_price:.2f}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;"><strong>🎁 Discount Applied:</strong></td>
+                    <td style="padding:8px 0;">€{booking.discount_applied:.2f}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;"><strong>✅ Final Price:</strong></td>
+                    <td style="padding:8px 0; color:#198754; font-weight:600;">€{booking.final_price:.2f}</td>
+                  </tr>
+                </table>
+
+                <div style="margin-top:25px; background:#e8f5e9; border-left:5px solid #198754; padding:15px 20px; border-radius:8px;">
+                  <p style="margin:0; color:#155724; font-size:15px;">
+                    💳 Please pay the total amount <strong>on arrival</strong> during check-in.
+                  </p>
+                </div>
+
+                <p style="margin-top:25px; color:#555; font-size:14px;">
+                  For any queries, please contact our team at <a href="mailto:studentaccommodation@nci.ie" style="color:#0056b3;">studentaccommodation@nci.ie</a>.
+                </p>
+
+                <hr style="border:none; border-top:1px solid #ddd; margin:25px 0;">
+
+                <!-- Footer -->
+                <p style="text-align:center; color:#888; font-size:13px;">
+                  Thank you for choosing <strong>Student Accommodation</strong>!<br>
+                  We look forward to welcoming you soon. 🌟
+                </p>
+              </div>
+            </div>
+          </body>
+        </html>
+        """
+
+        message = MIMEMultipart()
+        message["From"] = sender_email
+        message["To"] = receiver_email
+        message["Subject"] = subject
+        message.attach(MIMEText(body, "html"))
+
+        import smtplib
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
             server.starttls()
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message.as_string())
-        print("✅ Booking email sent successfully!")
+        print("✅ Styled booking confirmation email sent successfully!")
+
     except Exception as e:
         print("❌ Email send failed:", e)
 
-    messages.success(request, f"🎉 Room {available_room.room_number} booked successfully!")
-    return redirect("accommodation:my_bookings")
+    # ✅ Show confirmation page
+    return render(request, "accommodation/booking_confirmation.html", {
+        "booking": booking,
+        "accommodation": accommodation,
+        "room": available_room,
+    })
 
 
 # 📘 My Bookings View
@@ -201,15 +261,51 @@ def my_bookings(request):
     return render(request, "accommodation/my_bookings.html", {"bookings": bookings})
 
 
-# 👤 Register View (public)
+# 👤 Register View (email-based)
 @never_cache
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        email = request.POST.get('email')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+
+        if not email or not password1 or not password2:
+            messages.error(request, "⚠️ All fields are required.")
+            return redirect('accommodation:register')
+
+        if password1 != password2:
+            messages.error(request, "❌ Passwords do not match.")
+            return redirect('accommodation:register')
+
+        if User.objects.filter(username=email).exists():
+            messages.error(request, "⚠️ Email already registered. Please log in.")
+            return redirect('login')
+
+        user = User.objects.create_user(username=email, email=email, password=password1)
+        user.save()
+        messages.success(request, "🎉 Account created successfully! You can now log in.")
+        return redirect('login')
+
+    return render(request, 'registration/register.html')
+
+
+# 🖼️ Upload Accommodation Image (S3 integrated)
+@login_required(login_url='login')
+def upload_accommodation_image(request, pk):
+    accommodation = get_object_or_404(Accommodation, pk=pk)
+
+    if request.method == 'POST':
+        form = AccommodationImageForm(request.POST, request.FILES, instance=accommodation)
         if form.is_valid():
             form.save()
-            messages.success(request, "🎉 Account created successfully! You can now log in.")
-            return redirect('login')
+            messages.success(request, "✅ Accommodation image updated successfully!")
+            return redirect('accommodation:accommodation_detail', pk=pk)
+        else:
+            messages.error(request, "❌ Failed to upload image. Please try again.")
     else:
-        form = UserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
+        form = AccommodationImageForm(instance=accommodation)
+
+    return render(request, 'accommodation/upload_accommodation_image.html', {
+        'form': form,
+        'accommodation': accommodation
+    })

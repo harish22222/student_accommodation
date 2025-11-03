@@ -18,4 +18,7 @@ urlpatterns = [
 
     # 👤 Register page (kept here for now)
     path('register/', views.register, name='register'),
+    
+    path('<int:pk>/upload-image/', views.upload_accommodation_image, name='upload_image'),
+
 ]
