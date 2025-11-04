@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from discountlib.festival import FestivalDiscountLib  # ✅ Custom discount library import
 
 
 # 👨‍💼 Owner Model
@@ -28,7 +29,7 @@ class FestivalDiscount(models.Model):
         return self.active and (self.start_date <= today <= self.end_date)
 
 
-# 🏠 Accommodation Model
+# 🏠 Accommodation Model (uses discountlib)
 class Accommodation(models.Model):
     title = models.CharField(max_length=200)
     city = models.CharField(max_length=100)
@@ -43,16 +44,29 @@ class Accommodation(models.Model):
         return self.title
 
     def get_final_price(self):
-        """Return price after applying active festival discount (if valid)."""
-        if self.festival_discount and self.festival_discount.is_active():
-            discount_amount = (self.price_per_month * self.festival_discount.percentage) / 100
-            return self.price_per_month - discount_amount
+        """✅ Use FestivalDiscountLib to calculate final discounted price"""
+        if self.festival_discount:
+            discount_lib = FestivalDiscountLib(
+                name=self.festival_discount.name,
+                percentage=self.festival_discount.percentage,
+                start_date=self.festival_discount.start_date,
+                end_date=self.festival_discount.end_date,
+                active=self.festival_discount.active
+            )
+            return discount_lib.apply_discount(float(self.price_per_month))
         return self.price_per_month
 
     def get_discount_amount(self):
-        """Return only the discount amount if active, else 0."""
-        if self.festival_discount and self.festival_discount.is_active():
-            return (self.price_per_month * self.festival_discount.percentage) / 100
+        """✅ Use FestivalDiscountLib to get only discount amount"""
+        if self.festival_discount:
+            discount_lib = FestivalDiscountLib(
+                name=self.festival_discount.name,
+                percentage=self.festival_discount.percentage,
+                start_date=self.festival_discount.start_date,
+                end_date=self.festival_discount.end_date,
+                active=self.festival_discount.active
+            )
+            return discount_lib.get_discount_amount(float(self.price_per_month))
         return 0
 
 
@@ -102,7 +116,7 @@ class Booking(models.Model):
         return f"{self.student.user.username} - {self.room.room_number}"
 
     def save(self, *args, **kwargs):
-        """Auto-calculate discount and final price on save."""
+        """✅ Auto-calculate discount and final price using library"""
         accommodation = self.room.accommodation
         self.original_price = accommodation.price_per_month
         self.discount_applied = accommodation.get_discount_amount()

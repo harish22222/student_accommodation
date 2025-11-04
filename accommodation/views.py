@@ -228,7 +228,7 @@ def book_room(request, pk):
             server.starttls()
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message.as_string())
-        print("✅ Styled booking confirmation email sent successfully!")
+        print("✅ Booking confirmation email sent successfully!")
 
     except Exception as e:
         print("❌ Email send failed:", e)
