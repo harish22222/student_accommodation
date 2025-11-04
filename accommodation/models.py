@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-from discountlib.festival import FestivalDiscountLib  # ✅ Custom discount library import
+from studentaccommodationpkg.festival_discount import FestivalDiscountLib
+from decimal import Decimal
 
 
 # 👨‍💼 Owner Model
@@ -16,7 +17,7 @@ class Owner(models.Model):
 # 🎉 Festival Discount Model
 class FestivalDiscount(models.Model):
     name = models.CharField(max_length=100)
-    percentage = models.DecimalField(max_digits=5, decimal_places=2, help_text="Discount percentage (e.g. 10.00 for 10%)")
+    percentage = models.DecimalField(max_digits=5, decimal_places=2)
     start_date = models.DateField()
     end_date = models.DateField()
     active = models.BooleanField(default=True)
@@ -29,7 +30,7 @@ class FestivalDiscount(models.Model):
         return self.active and (self.start_date <= today <= self.end_date)
 
 
-# 🏠 Accommodation Model (uses discountlib)
+# 🏠 Accommodation Model
 class Accommodation(models.Model):
     title = models.CharField(max_length=200)
     city = models.CharField(max_length=100)
@@ -38,14 +39,14 @@ class Accommodation(models.Model):
     description = models.TextField(blank=True)
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE, null=True, blank=True)
     image = models.ImageField(upload_to='accommodations/', blank=True, null=True)
-    festival_discount = models.ForeignKey('FestivalDiscount', null=True, blank=True, on_delete=models.SET_NULL)
+    festival_discount = models.ForeignKey(FestivalDiscount, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.title
 
     def get_final_price(self):
-        """✅ Use FestivalDiscountLib to calculate final discounted price"""
-        if self.festival_discount:
+        """Calculate discounted price using FestivalDiscountLib"""
+        if self.festival_discount and self.festival_discount.is_active():
             discount_lib = FestivalDiscountLib(
                 name=self.festival_discount.name,
                 percentage=self.festival_discount.percentage,
@@ -53,12 +54,12 @@ class Accommodation(models.Model):
                 end_date=self.festival_discount.end_date,
                 active=self.festival_discount.active
             )
-            return discount_lib.apply_discount(float(self.price_per_month))
+            return discount_lib.apply_discount(self.price_per_month)
         return self.price_per_month
 
     def get_discount_amount(self):
-        """✅ Use FestivalDiscountLib to get only discount amount"""
-        if self.festival_discount:
+        """Return only discount amount"""
+        if self.festival_discount and self.festival_discount.is_active():
             discount_lib = FestivalDiscountLib(
                 name=self.festival_discount.name,
                 percentage=self.festival_discount.percentage,
@@ -66,8 +67,8 @@ class Accommodation(models.Model):
                 end_date=self.festival_discount.end_date,
                 active=self.festival_discount.active
             )
-            return discount_lib.get_discount_amount(float(self.price_per_month))
-        return 0
+            return discount_lib.get_discount_amount(self.price_per_month)
+        return Decimal('0.00')
 
 
 # 🛠️ Amenity Model
@@ -107,7 +108,7 @@ class Booking(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     date_booked = models.DateTimeField(auto_now_add=True)
 
-    # 🧮 Store pricing details
+    # 🧮 Pricing details
     original_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     discount_applied = models.DecimalField(max_digits=8, decimal_places=2, default=0)
     final_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)
@@ -116,7 +117,7 @@ class Booking(models.Model):
         return f"{self.student.user.username} - {self.room.room_number}"
 
     def save(self, *args, **kwargs):
-        """✅ Auto-calculate discount and final price using library"""
+        """Auto-calculate discount and final price"""
         accommodation = self.room.accommodation
         self.original_price = accommodation.price_per_month
         self.discount_applied = accommodation.get_discount_amount()

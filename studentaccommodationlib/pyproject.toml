@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "studentaccommodationlib"
+version = "0.1.0"
+description = "A helper library for Student Accommodation AWS integrations (S3, SQS, SNS)"
+authors = [
+  { name = "Harish K", email = "kharish820414@gmail.com" }
+]
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.8"
+keywords = ["aws", "sqs", "sns", "s3", "student accommodation", "django"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+
+dependencies = [
+  "boto3"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/studentaccommodationpkg"]
