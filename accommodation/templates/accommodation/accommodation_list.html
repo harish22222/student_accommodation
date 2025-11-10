@@ -4,16 +4,20 @@
 
 {% block content %}
 <style>
+  /* 🌈 Page Background */
   body {
     background: linear-gradient(135deg, #f5f3ff 0%, #e9e4ff 100%);
   }
 
+  /* 🏠 Section Title */
   h2 {
-    color: #4e54c8;
+    color: #8e44ff;
     font-weight: 700;
     text-align: center;
+    text-shadow: 0 0 10px rgba(142, 68, 255, 0.4);
   }
 
+  /* 🔍 Filter Box */
   .filter-card {
     background: white;
     border-radius: 15px;
@@ -21,6 +25,7 @@
     max-width: 600px;
     margin: 30px auto 60px auto;
     padding: 30px;
+    transition: all 0.3s;
   }
 
   .filter-card .form-control {
@@ -28,21 +33,25 @@
   }
 
   .filter-card .form-control:focus {
-    border-color: #4e54c8;
-    box-shadow: 0 0 6px rgba(78, 84, 200, 0.3);
+    border-color: #8e44ff;
+    box-shadow: 0 0 6px rgba(142, 68, 255, 0.4);
   }
 
   .btn-primary {
-    background-color: #4e54c8;
+    background: linear-gradient(135deg, #8e44ff, #6c5ce7);
     border: none;
     font-weight: 600;
     transition: all 0.3s ease;
+    color: #fff;
   }
 
   .btn-primary:hover {
-    background-color: #3f44b3;
+    background: linear-gradient(135deg, #7a35ff, #5a3de0);
+    transform: translateY(-2px);
+    box-shadow: 0 0 10px rgba(138, 84, 255, 0.6);
   }
 
+  /* 🏡 Accommodation Cards */
   .accommodation-card {
     border-radius: 15px;
     transition: all 0.3s ease;
@@ -56,12 +65,13 @@
   }
 
   .card-title a {
-    color: #4e54c8;
+    color: #8e44ff;
     text-decoration: none;
+    transition: color 0.3s ease;
   }
 
   .card-title a:hover {
-    color: #ffb84d;
+    color: #facc15;
   }
 
   .price {
@@ -76,6 +86,7 @@
     margin-top: 50px;
   }
 
+  /* 🎉 Discount Banner */
   .discount-banner {
     max-width: 700px;
     margin: auto;
@@ -92,7 +103,7 @@
     position: absolute;
     top: 10px;
     left: -5px;
-    background: #4CAF50;
+    background: linear-gradient(135deg, #8e44ff, #6c5ce7);
     color: white;
     font-weight: 600;
     font-size: 13px;
@@ -105,11 +116,84 @@
   .card-img-container {
     position: relative;
   }
+
+  /* 🟣 Custom Buttons */
+  .btn-outline-primary {
+    background: linear-gradient(135deg, #8e44ff, #6c5ce7);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-outline-primary:hover {
+    background: linear-gradient(135deg, #7a35ff, #5a3de0);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 0 10px rgba(138, 84, 255, 0.6);
+  }
+
+  /* 🌙 Dark Mode Styling */
+  body.dark-theme {
+    background: #0f0f0f;
+  }
+
+  body.dark-theme h2 {
+    color: #c4a1ff;
+    text-shadow: 0 0 12px rgba(180, 140, 255, 0.6);
+  }
+
+  body.dark-theme .filter-card {
+    background: #1f1f1f;
+    color: #e0e0e0;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+  }
+
+  body.dark-theme .filter-card input {
+    background-color: #2a2a2a;
+    color: #fff;
+    border: 1px solid #5a3de0;
+  }
+
+  body.dark-theme .accommodation-card {
+    background: #1f1f1f;
+    color: #e0e0e0;
+    border: 1px solid #333;
+  }
+
+  body.dark-theme .card-title a {
+    color: #b388ff;
+  }
+
+  body.dark-theme .card-title a:hover {
+    color: #facc15;
+  }
+
+  body.dark-theme .btn-outline-primary {
+    background: linear-gradient(135deg, #b388ff, #7c3aed);
+    border: none;
+  }
+
+  body.dark-theme .btn-outline-primary:hover {
+    background: linear-gradient(135deg, #a855f7, #8b5cf6);
+    box-shadow: 0 0 10px rgba(183, 134, 255, 0.6);
+  }
+
+  body.dark-theme .discount-ribbon {
+    background: linear-gradient(135deg, #b388ff, #7c3aed);
+  }
+
+  body.dark-theme .discount-banner {
+    background: #142414;
+    border: 1px solid #2e7d32;
+    color: #a3e4a1;
+  }
 </style>
 
 <div class="container mt-5">
-  <h2 class="mb-4">🏡 Accommodation Listings</h2>
+  <h2 class="mb-4">🏡 Available Rooms</h2>
 
+  <!-- 🔍 Filter -->
   <div class="filter-card">
     <form method="get">
       <input type="text" name="q" placeholder="Search by title or description" class="form-control mb-2" value="{{ request.GET.q }}">
@@ -119,6 +203,7 @@
     </form>
   </div>
 
+  <!-- 🎉 Active Discounts -->
   {% if active_discounts %}
     <div class="discount-banner shadow-sm mb-4">
       {% for discount in active_discounts %}
@@ -128,6 +213,7 @@
     </div>
   {% endif %}
 
+  <!-- 🏡 Accommodation Cards -->
   <div class="row justify-content-center">
     {% if accommodations %}
       {% for accommodation in accommodations %}

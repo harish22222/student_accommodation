@@ -3,31 +3,26 @@
 
 {% block content %}
 <style>
-  body {
-    background: linear-gradient(135deg, #8e44ff, #6c5ce7);
-    font-family: 'Poppins', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
+  /* 🌟 Base Login Card */
   .login-card {
-    background: #fff;
+    background: var(--card-bg, #fff);
     border-radius: 20px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     padding: 40px;
     max-width: 400px;
     width: 100%;
-    margin: auto;
+    margin: 60px auto;
     text-align: center;
+    transition: background-color 0.4s, color 0.4s;
   }
 
   .login-card h3 {
-    color: #6c5ce7;
+    color: var(--accent, #6c5ce7);
     font-weight: 700;
     margin-bottom: 25px;
   }
 
+  /* 🟣 Login Button */
   .btn-login {
     background: linear-gradient(135deg, #8e44ff, #6c5ce7);
     border: none;
@@ -37,12 +32,14 @@
     width: 100%;
     padding: 10px 0;
     margin-top: 10px;
+    transition: opacity 0.3s;
   }
 
   .btn-login:hover {
-    background: linear-gradient(135deg, #7a35ff, #5a3de0);
+    opacity: 0.9;
   }
 
+  /* 🔗 Register Link */
   .login-link {
     margin-top: 15px;
     font-size: 0.95rem;
@@ -58,6 +55,69 @@
   .login-link a:hover {
     text-decoration: underline;
   }
+
+  /* ☀️ Light Mode */
+  input {
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 10px;
+    width: 100%;
+  }
+
+  label {
+    color: #333;
+    font-weight: 600;
+  }
+
+  input::placeholder {
+    color: #999;
+  }
+
+  /* 🌙 Dark Mode */
+  body.dark-theme {
+    background: linear-gradient(135deg, #0d0d0d, #1f1f1f);
+  }
+
+  body.dark-theme .login-card {
+    background: #1f1f1f;
+    color: #e0e0e0;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+  }
+
+  body.dark-theme .login-card h3 {
+    color: #facc15;
+  }
+
+  /* ✅ Input & Label Fix for Dark Theme */
+  body.dark-theme label {
+    color: #d0b3ff !important; /* soft purple */
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  body.dark-theme input {
+    background-color: #2a2a2a !important;
+    color: #fff !important;
+    border: 1px solid #5a3de0 !important;
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+
+  body.dark-theme input:focus {
+    border-color: #9a6bff !important;
+    outline: none;
+    box-shadow: 0 0 6px #9a6bff;
+  }
+
+  body.dark-theme input::placeholder {
+    color: #bbb !important;
+  }
+
+  body.dark-theme .login-link {
+    color: #bbb;
+  }
 </style>
 
 <div class="login-card">
@@ -65,16 +125,17 @@
   <form method="post" action="{% url 'login' %}">
     {% csrf_token %}
     {{ form.non_field_errors }}
-    <div class="mb-3">
+    <div class="mb-3 text-start">
       {{ form.username.label_tag }}
       {{ form.username }}
     </div>
-    <div class="mb-3">
+    <div class="mb-3 text-start">
       {{ form.password.label_tag }}
       {{ form.password }}
     </div>
     <button type="submit" class="btn-login">Login</button>
   </form>
+
   <div class="login-link">
     Don’t have an account? <a href="{% url 'accommodation:register' %}">Create one</a>
   </div>
