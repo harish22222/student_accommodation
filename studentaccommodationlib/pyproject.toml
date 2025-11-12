@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "studentaccommodationpkg"
 version = "0.1.0"
-description = "Custom festival discount library"
+description = "Custom Festival Discount Library for Student Accommodation Project"
 authors = [
   { name = "Harish K", email = "kharish820414@gmail.com" }
 ]
@@ -27,4 +27,3 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
-

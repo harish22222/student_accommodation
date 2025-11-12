@@ -44,30 +44,27 @@ class Accommodation(models.Model):
     def __str__(self):
         return self.title
 
+    # ✅ Fixed: Use correct FestivalDiscountLib() signature
     def get_final_price(self):
         """Calculate discounted price using FestivalDiscountLib"""
         if self.festival_discount and self.festival_discount.is_active():
-            discount_lib = FestivalDiscountLib(
-                name=self.festival_discount.name,
-                percentage=self.festival_discount.percentage,
-                start_date=self.festival_discount.start_date,
-                end_date=self.festival_discount.end_date,
-                active=self.festival_discount.active
-            )
-            return discount_lib.apply_discount(self.price_per_month)
+            festival = FestivalDiscountLib()
+            discount_percent = float(self.festival_discount.percentage)
+            # Safely handle float/Decimal mix
+            final_price = festival.apply_discount(float(self.price_per_month), discount_percent)
+            return Decimal(str(final_price))
         return self.price_per_month
 
+    # ✅ Fixed: Clean Decimal vs float issue
     def get_discount_amount(self):
         """Return only discount amount"""
         if self.festival_discount and self.festival_discount.is_active():
-            discount_lib = FestivalDiscountLib(
-                name=self.festival_discount.name,
-                percentage=self.festival_discount.percentage,
-                start_date=self.festival_discount.start_date,
-                end_date=self.festival_discount.end_date,
-                active=self.festival_discount.active
-            )
-            return discount_lib.get_discount_amount(self.price_per_month)
+            festival = FestivalDiscountLib()
+            discount_percent = float(self.festival_discount.percentage)
+            original_price = Decimal(self.price_per_month)
+            # Convert both ways safely
+            final_price = Decimal(str(festival.apply_discount(float(original_price), discount_percent)))
+            return original_price - final_price
         return Decimal('0.00')
 
 

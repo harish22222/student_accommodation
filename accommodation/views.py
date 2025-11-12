@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from decimal import Decimal
@@ -23,10 +23,17 @@ from studentaccommodationpkg.festival_discount import FestivalDiscountLib
 
 # ✅ AWS integrations
 from .sns_utils import send_sns_notification
-from .sqs_utils import send_booking_message  # ✅ Correct function for full booking details
+from .sqs_utils import send_booking_message
 
 
-# ✅ AWS Lambda test API (for reference)
+# 🩺 ✅ Health check endpoint for Elastic Beanstalk
+@csrf_exempt
+def health_check(request):
+    """AWS Elastic Beanstalk health check endpoint."""
+    return HttpResponse("OK", status=200)
+
+
+# ✅ AWS Lambda test API
 @csrf_exempt
 def check_room_api(request):
     api_gateway_url = "https://31amd0e7lj.execute-api.us-east-1.amazonaws.com/prod/checkroom"
@@ -57,15 +64,10 @@ def room_list(request):
         festival_name = None
 
         if acc.festival_discount and acc.festival_discount.is_active():
-            festival = FestivalDiscountLib(
-                name=acc.festival_discount.name,
-                percentage=acc.festival_discount.percentage,
-                start_date=acc.festival_discount.start_date,
-                end_date=acc.festival_discount.end_date,
-                active=acc.festival_discount.active
-            )
+            # ✅ Fixed logic
+            festival = FestivalDiscountLib()
             discount_percent = acc.festival_discount.percentage
-            final_price = festival.apply_discount(original_price)
+            final_price = festival.apply_discount(original_price, discount_percent)
             festival_name = acc.festival_discount.name
 
         status = "Booked" if room.id in booked_room_ids else "Available"
@@ -90,21 +92,15 @@ def accommodation_detail(request, pk):
     accommodation = get_object_or_404(Accommodation, pk=pk)
     rooms = Room.objects.filter(accommodation=accommodation)
     original_price = accommodation.price_per_month
-
     discount_percent = Decimal(0)
     final_price = original_price
     festival_name = None
 
     if accommodation.festival_discount and accommodation.festival_discount.is_active():
-        festival = FestivalDiscountLib(
-            name=accommodation.festival_discount.name,
-            percentage=accommodation.festival_discount.percentage,
-            start_date=accommodation.festival_discount.start_date,
-            end_date=accommodation.festival_discount.end_date,
-            active=accommodation.festival_discount.active
-        )
+        # ✅ Fixed logic
+        festival = FestivalDiscountLib()
         discount_percent = accommodation.festival_discount.percentage
-        final_price = festival.apply_discount(original_price)
+        final_price = festival.apply_discount(original_price, discount_percent)
         festival_name = accommodation.festival_discount.name
 
     booked_rooms = Booking.objects.values_list('room_id', flat=True)
@@ -147,7 +143,7 @@ def book_room(request, pk):
     available_room.status = "Booked"
     available_room.save()
 
-    # ✅ Step 1: Send booking info to SQS (full booking details)
+    # ✅ Step 1: Send booking info to SQS
     try:
         send_booking_message(booking)
         print("✅ Booking data sent to SQS successfully!")

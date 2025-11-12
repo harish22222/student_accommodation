@@ -4,7 +4,10 @@ from . import views
 app_name = 'accommodation'
 
 urlpatterns = [
-    # 🏘️ Room list
+    # 🩺 Health check endpoint (for AWS Elastic Beanstalk)
+    path('health/', views.health_check, name='health_check'),
+
+    # 🏘️ Room list (Home Page)
     path('', views.room_list, name='accommodation_list'),
 
     # 🏡 Accommodation detail
@@ -16,9 +19,9 @@ urlpatterns = [
     # 📘 My bookings
     path('my-bookings/', views.my_bookings, name='my_bookings'),
 
-    # 👤 Register page (kept here for now)
+    # 👤 Register page
     path('register/', views.register, name='register'),
-    
-    path('<int:pk>/upload-image/', views.upload_accommodation_image, name='upload_image'),
 
+    # 🖼️ Upload image for accommodation
+    path('<int:pk>/upload-image/', views.upload_accommodation_image, name='upload_image'),
 ]

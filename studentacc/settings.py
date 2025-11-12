@@ -36,14 +36,19 @@ SECRET_KEY = secrets.get(
     "DJANGO_SECRET_KEY",
     "django-insecure-k0_^ahy01jr9o5y5+!$7-_svf^+s4av9vmw(^*=1j#dk9seqr9"
 )
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = [
+    '.elasticbeanstalk.com',
+    'localhost',
+    '127.0.0.1',
+    'student-accommodation-env.eba-im34ivuv.us-east-1.elasticbeanstalk.com',
+    '192ef4ce785a40f583434975b96a3cbb.vfs.cloud9.us-east-1.amazonaws.com',
+]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.vfs.cloud9.us-east-1.amazonaws.com',
-    'https://student-accommodation-env.eba-wjcszxdx.us-east-1.elasticbeanstalk.com'
+    'https://student-accommodation-env.eba-im34ivuv.us-east-1.elasticbeanstalk.com',
+    'https://192ef4ce785a40f583434975b96a3cbb.vfs.cloud9.us-east-1.amazonaws.com',
 ]
 
 
@@ -132,10 +137,15 @@ USE_TZ = True
 # ========================
 # STATIC & MEDIA FILES
 # ========================
-STATIC_URL = 'static/'
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# 🔹 Static files (for CSS, JS)
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# 🔹 Media files (for user uploads)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ========================
 # LOGIN / LOGOUT SETTINGS

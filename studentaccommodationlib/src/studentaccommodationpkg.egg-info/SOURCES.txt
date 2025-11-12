@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+setup.py
+src/studentaccommodationpkg/__init__.py
+src/studentaccommodationpkg/festival_discount.py
+src/studentaccommodationpkg.egg-info/PKG-INFO
+src/studentaccommodationpkg.egg-info/SOURCES.txt
+src/studentaccommodationpkg.egg-info/dependency_links.txt
+src/studentaccommodationpkg.egg-info/requires.txt
+src/studentaccommodationpkg.egg-info/top_level.txt
