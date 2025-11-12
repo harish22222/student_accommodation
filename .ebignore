@@ -1,0 +1,9 @@
+# Default EB ignores many files – we override that
+!.ebextensions/**
+!studentaccommodationlib/**
+!studentacc/**
+!accommodation/**
+!manage.py
+!requirements.txt
+!Procfile
+
