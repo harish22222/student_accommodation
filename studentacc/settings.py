@@ -39,7 +39,7 @@ SECRET_KEY = secrets.get(
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    '*',
+    'student-accommodation-env.eba-im34ivuv.us-east-1.elasticbeanstalk.com',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
