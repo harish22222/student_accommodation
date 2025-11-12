@@ -9,7 +9,7 @@ import json
 import sys
 
 import os
-
+BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(os.path.join(BASE_DIR, 'studentaccommodationlib', 'src'))
 
  
@@ -45,7 +45,7 @@ SECRET_KEY = secrets.get(
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'student-accommodation-env.eba-im34ivuv.us-east-1.elasticbeanstalk.com',
+    'student-accommodation-env.eba-im34ivuv.us-east-1.elasticbeanstalk.com','*',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
