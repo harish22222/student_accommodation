@@ -184,3 +184,5 @@ SESSION_FILE_PATH = '/tmp/django_sessions'
 # Disable browser caching completely
 CACHE_MIDDLEWARE_SECONDS = 0
 CACHE_MIDDLEWARE_KEY_PREFIX = ""
+
+WSGI_APPLICATION = 'studentacc.wsgi.application'
