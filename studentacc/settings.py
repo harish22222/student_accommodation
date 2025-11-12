@@ -6,7 +6,13 @@ from pathlib import Path
 import os
 import boto3
 import json
+import sys
 
+import os
+
+sys.path.append(os.path.join(BASE_DIR, 'studentaccommodationlib', 'src'))
+
+ 
 # ========================
 # FUNCTION TO LOAD SECRETS FROM AWS
 # ========================
