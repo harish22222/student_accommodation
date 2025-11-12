@@ -1,47 +1,39 @@
-asgiref==3.10.0
-awsebcli==3.25.3
-bcrypt==5.0.0
-blessed==1.23.0
-boto3==1.40.64
-botocore==1.40.64
-build==1.3.0
-cement==2.10.14
-certifi==2025.10.5
-cffi==2.0.0
-charset-normalizer==3.4.4
-colorama==0.4.6
-cryptography==46.0.3
-decorator==5.2.1
-Deprecated==1.3.1
+# --- Core build tools (must be first)
+setuptools
+wheel
+
+# --- Django framework
 Django==4.2.26
+
+# --- AWS and storage dependencies
+boto3==1.40.64
 django-storages==1.14.6
-fabric==3.2.2
+
+# --- Web server
 gunicorn==23.0.0
-idna==3.11
-importlib_metadata==8.7.0
-invoke==2.2.1
-jmespath==1.0.1
-packaging==24.2
-paramiko==4.0.0
-pathspec==0.12.1
-pillow==11.3.0
-pycparser==2.23
-PyNaCl==1.6.1
-pyproject_hooks==1.2.0
-python-dateutil==2.9.0.post0
+
+# --- Date/time and utilities
 pytz==2025.2
-PyYAML==6.0.3
+
+# --- Image and file handling
+pillow==11.3.0
+
+# --- Network libraries (for requests, etc.)
 requests==2.32.5
-s3transfer==0.14.0
-semantic-version==2.10.0
-six==1.17.0
-sqlparse==0.5.3
-studentaccommodationpkg==0.1.0
-termcolor==2.5.0
-tomli==2.3.0
-typing_extensions==4.15.0
 urllib3==1.26.20
-wcwidth==0.2.14
-wrapt==2.0.1
-zipp==3.23.0
+idna==3.11
+charset-normalizer==3.4.4
+certifi==2025.10.5
+
+# --- Supporting libraries
+sqlparse==0.5.3
+typing_extensions==4.15.0
+packaging==24.2
+python-dateutil==2.9.0.post0
+jmespath==1.0.1
+s3transfer==0.14.0
+botocore==1.40.64
+six==1.17.0
+
+# --- Your custom Python library (local)
 -e ./studentaccommodationlib
