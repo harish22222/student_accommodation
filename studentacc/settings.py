@@ -38,10 +38,14 @@ SECRET_KEY = secrets.get(
 )
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vfs.cloud9.us-east-1.amazonaws.com']
+ALLOWED_HOSTS = ['*']
 
 
-CSRF_TRUSTED_ORIGINS = ['https://*.vfs.cloud9.us-east-1.amazonaws.com']
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vfs.cloud9.us-east-1.amazonaws.com',
+    'https://student-accommodation-env.eba-wjcszxdx.us-east-1.elasticbeanstalk.com'
+]
+
 
 
 # ========================
