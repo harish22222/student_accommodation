@@ -42,10 +42,10 @@ SECRET_KEY = secrets.get(
     "DJANGO_SECRET_KEY",
     "django-insecure-k0_^ahy01jr9o5y5+!$7-_svf^+s4av9vmw(^*=1j#dk9seqr9"
 )
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
-    'student-accommodation-env.eba-im34ivuv.us-east-1.elasticbeanstalk.com','*',
+    '*',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
