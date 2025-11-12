@@ -39,11 +39,7 @@ SECRET_KEY = secrets.get(
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    '.elasticbeanstalk.com',
-    'localhost',
-    '127.0.0.1',
-    'student-accommodation-env.eba-im34ivuv.us-east-1.elasticbeanstalk.com',
-    '192ef4ce785a40f583434975b96a3cbb.vfs.cloud9.us-east-1.amazonaws.com',
+    '*',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
