@@ -36,7 +36,6 @@ s3transfer==0.14.0
 semantic-version==2.10.0
 six==1.17.0
 sqlparse==0.5.3
--e git+https://github.com/harish22222/student_accommodation.git@7b4c14b159bae3c79e6812d4defda0c6f003e065#egg=studentaccommodationlib&subdirectory=studentaccommodationlib
 studentaccommodationpkg @ file:///home/ec2-user/environment/student_accommodation/studentaccommodationlib
 termcolor==2.5.0
 tomli==2.3.0
