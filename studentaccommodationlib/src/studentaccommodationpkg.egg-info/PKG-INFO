@@ -2,6 +2,7 @@ Metadata-Version: 2.4
 Name: studentaccommodationpkg
 Version: 0.1.0
 Summary: Custom Festival Discount Library for Student Accommodation Project
+Author: Harish K
 Author-email: Harish K <kharish820414@gmail.com>
 License: MIT
 Keywords: aws,django,student accommodation,festival discount,s3,sns,sqs
@@ -9,6 +10,8 @@ Classifier: Programming Language :: Python :: 3
 Classifier: Framework :: Django
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
-Requires-Python: >=3.8
+Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 Requires-Dist: boto3
+Dynamic: author
+Dynamic: requires-python
