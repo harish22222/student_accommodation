@@ -1,1 +1,1 @@
-web: gunicorn studentacc.wsgi
+web: gunicorn --chdir studentacc studentacc.wsgi:application
