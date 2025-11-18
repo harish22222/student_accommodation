@@ -10,7 +10,7 @@ import sys
 
 import sys
 import sqlite3
-sys.modules["sqlite3"] = __import__("pysqlite3")
+# sys.modules["sqlite3"] = __import__("pysqlite3")
 
 import os
 BASE_DIR = Path(__file__).resolve().parent.parent
