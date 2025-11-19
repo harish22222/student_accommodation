@@ -1,24 +1,39 @@
+# accommodation/sns_utils.py
 import boto3
 from botocore.exceptions import ClientError
 
-def send_sns_notification(subject, message):
-    """
-    Sends an SNS notification to a predefined topic.
-    Replace the ARN with your actual SNS Topic ARN.
-    """
-    # ⚙️ Paste your SNS Topic ARN here
-    topic_arn = "arn:aws:sns:us-east-1:471112797649:BookingNotifications"
+REGION_NAME = "us-east-1"
+TOPIC_NAME = "BookingNotifications"
 
-    sns_client = boto3.client("sns", region_name="us-east-1")
+
+def get_or_create_topic():
+    sns = boto3.client("sns", region_name=REGION_NAME)
+
+    # List existing topics
+    topics = sns.list_topics().get("Topics", [])
+
+    for t in topics:
+        if TOPIC_NAME in t["TopicArn"]:
+            return t["TopicArn"]
+
+    print("⚠️ SNS topic not found. Creating a new one...")
+
+    response = sns.create_topic(Name=TOPIC_NAME)
+    return response["TopicArn"]
+
+
+def send_sns_notification(subject, message):
+    sns = boto3.client("sns", region_name=REGION_NAME)
+    topic_arn = get_or_create_topic()
 
     try:
-        response = sns_client.publish(
+        response = sns.publish(
             TopicArn=topic_arn,
             Subject=subject,
             Message=message
         )
-        print("✅ SNS message sent:", response)
+        print("✅ SNS notification sent:", response)
         return True
     except ClientError as e:
-        print("❌ SNS error:", e)
+        print("❌ SNS publish error:", e)
         return False

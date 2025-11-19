@@ -3,44 +3,50 @@ import boto3
 import json
 from botocore.exceptions import ClientError
 
-
-# ✅ Your actual SQS queue URL
-QUEUE_URL = "https://sqs.us-east-1.amazonaws.com/471112797649/BookingQueue"
-
-# ✅ AWS region
 REGION_NAME = "us-east-1"
+QUEUE_NAME = "BookingQueue"
+
+
+def get_or_create_queue():
+    """Create the SQS queue automatically if not present."""
+    sqs = boto3.client("sqs", region_name=REGION_NAME)
+
+    try:
+        queue_url = sqs.get_queue_url(QueueName=QUEUE_NAME)["QueueUrl"]
+        return queue_url
+    except ClientError:
+        print("⚠️ Queue not found. Creating a new one...")
+
+        response = sqs.create_queue(
+            QueueName=QUEUE_NAME,
+            Attributes={
+                "VisibilityTimeout": "30"
+            }
+        )
+        return response["QueueUrl"]
 
 
 def send_sqs_message(message_body):
-    """
-    Sends any message (JSON string or dict) to the BookingQueue.
-    Automatically converts dict to JSON if needed.
-    """
     sqs = boto3.client("sqs", region_name=REGION_NAME)
+    queue_url = get_or_create_queue()
 
-    # Convert to JSON if a dict is passed
     if isinstance(message_body, dict):
         message_body = json.dumps(message_body)
 
     try:
         response = sqs.send_message(
-            QueueUrl=QUEUE_URL,
+            QueueUrl=queue_url,
             MessageBody=message_body
         )
-        print(f"✅ SQS message sent successfully! MessageId: {response['MessageId']}")
+        print(f"✅ SQS message sent! MessageId: {response['MessageId']}")
         return True
-    except ClientError as e:
-        print(f"❌ SQS ClientError: {e}")
-        return False
     except Exception as e:
-        print(f"❌ Unexpected error sending SQS message: {e}")
+        print(f"❌ Failed to send SQS message: {e}")
         return False
 
 
 def send_booking_message(booking):
-    """
-    Sends booking details to SQS after a booking is created in Django.
-    """
+    """Send formatted booking data to SQS."""
     try:
         message_body = {
             "booking_id": booking.id,
@@ -52,8 +58,6 @@ def send_booking_message(booking):
             "discount_applied": float(booking.discount_applied),
             "final_price": float(booking.final_price),
         }
-
-        # ✅ Send to queue
         send_sqs_message(message_body)
     except Exception as e:
         print(f"❌ Failed to prepare booking message: {e}")

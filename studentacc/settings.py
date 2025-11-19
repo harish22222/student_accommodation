@@ -8,191 +8,193 @@ import boto3
 import json
 import sys
 
-import sys
-import sqlite3
-# sys.modules["sqlite3"] = __import__("pysqlite3")
-
-import os
+# Allow local library import
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(os.path.join(BASE_DIR, 'studentaccommodationlib', 'src'))
 
- 
-# ========================
-# FUNCTION TO LOAD SECRETS FROM AWS
-# ========================
+# ============================================================
+# 🔐 1. Load Secrets From AWS Secrets Manager
+# ============================================================
 def get_secret(secret_name):
+    """Load JSON secret from AWS Secrets Manager (safe fallback)."""
     region_name = "us-east-1"
     session = boto3.session.Session()
-    client = session.client(service_name='secretsmanager', region_name=region_name)
+    client = session.client("secretsmanager", region_name=region_name)
 
     try:
-        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
-        secret = get_secret_value_response['SecretString']
+        response = client.get_secret_value(SecretId=secret_name)
         print("✅ Loaded secrets from AWS Secrets Manager")
-        return json.loads(secret)
+        return json.loads(response["SecretString"])
     except Exception as e:
         print("❌ Could not load secret:", e)
-        return {}
+        return {}   # fallback (local dev mode)
 
-# ========================
-# BASE SETTINGS
-# ========================
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load secrets
 secrets = get_secret("student-accommodation-secrets")
 
+
+# ============================================================
+# 🔑 2. Security / Base Config
+# ============================================================
 SECRET_KEY = secrets.get(
     "DJANGO_SECRET_KEY",
     "django-insecure-k0_^ahy01jr9o5y5+!$7-_svf^+s4av9vmw(^*=1j#dk9seqr9"
 )
+
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    '*',
-]
+ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://student-accommodation-env.eba-im34ivuv.us-east-1.elasticbeanstalk.com',
-    'https://192ef4ce785a40f583434975b96a3cbb.vfs.cloud9.us-east-1.amazonaws.com',
+    "https://*.vfs.cloud9.us-east-1.amazonaws.com",
 ]
 
 
-
-# ========================
-# APPLICATIONS
-# ========================
+# ============================================================
+# 📦 3. Applications
+# ============================================================
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'accommodation.apps.AccommodationConfig',
-    'storages',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+
+    # Your app
+    "accommodation.apps.AccommodationConfig",
+
+    # S3 media storage
+    "storages",
 ]
 
-# ========================
-# MIDDLEWARE
-# ========================
+
+# ============================================================
+# 🔧 4. Middleware
+# ============================================================
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 
-    # ✅ Must be last
-    'accommodation.middleware.DisableClientCacheMiddleware',
+    "accommodation.middleware.DisableClientCacheMiddleware",  # last
 ]
 
-# ========================
-# URLS / WSGI
-# ========================
-ROOT_URLCONF = 'studentacc.urls'
+
+# ============================================================
+# 🌐 5. URL/WSGI
+# ============================================================
+ROOT_URLCONF = "studentacc.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'studentacc.wsgi.application'
+WSGI_APPLICATION = "studentacc.wsgi.application"
 
-# ========================
-# DATABASE
-# ========================
+
+# ============================================================
+# 🗄️ 6. Database
+# ============================================================
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
-# ========================
-# PASSWORD VALIDATION
-# ========================
+
+# ============================================================
+# 🔐 7. Password Validation
+# ============================================================
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# ========================
-# INTERNATIONALIZATION
-# ========================
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+
+# ============================================================
+# 🌍 8. Internationalization
+# ============================================================
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# ========================
-# STATIC & MEDIA FILES
-# ========================
-# 🔹 Static files (for CSS, JS)
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 🔹 Media files (for user uploads)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# ============================================================
+# 📁 9. Static & Media (S3) Settings
+# ============================================================
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Your new S3 bucket in this lab
+AWS_S3_REGION_NAME = "us-east-1"
+AWS_STORAGE_BUCKET_NAME = secrets.get(
+    "AWS_S3_BUCKET",
+    "studentaccommodation-media-harish-new-lab"
+)
 
-# ========================
-# LOGIN / LOGOUT SETTINGS
-# ========================
-LOGIN_REDIRECT_URL = 'accommodation:accommodation_list'
-LOGOUT_REDIRECT_URL = 'login'
-LOGIN_URL = 'login'
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 
-# ========================
-# EMAIL BACKEND
-# ========================
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# ========================
-# AWS SETTINGS
-# ========================
-AWS_S3_REGION_NAME = 'us-east-1'
-AWS_STORAGE_BUCKET_NAME = secrets.get("AWS_S3_BUCKET", "studentaccommodation-media-harish")
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 AWS_DEFAULT_ACL = None
 AWS_S3_FILE_OVERWRITE = False
 AWS_QUERYSTRING_AUTH = False
-MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
 
-# ========================
-# SESSION CONFIGURATION
-# ========================
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/"
+
+
+# ============================================================
+# 👤 10. Login/Logout
+# ============================================================
+LOGIN_REDIRECT_URL = "accommodation:accommodation_list"
+LOGOUT_REDIRECT_URL = "login"
+LOGIN_URL = "login"
+
+
+# ============================================================
+# 📧 11. Email Backend
+# ============================================================
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+# ============================================================
+# 🧁 12. Sessions
+# ============================================================
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_COOKIE_AGE = 600  # 10 minutes
+SESSION_COOKIE_AGE = 600     # 10 minutes
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True
 
-# ✅ Store sessions in temporary files (deleted automatically on restart)
-SESSION_FILE_PATH = '/tmp/django_sessions'
+SESSION_FILE_PATH = "/tmp/django_sessions"
 
-# Disable browser caching completely
 CACHE_MIDDLEWARE_SECONDS = 0
 CACHE_MIDDLEWARE_KEY_PREFIX = ""
 
-WSGI_APPLICATION = 'studentacc.wsgi.application'
+
+# ============================================================
+# 🎉 ALL SET
+# ============================================================
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
